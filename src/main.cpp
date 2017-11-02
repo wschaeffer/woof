@@ -15,12 +15,6 @@ APA102<dataPin, clockPin> ledStrip;
 // Set the number of LEDs to control.
 const uint8_t ledCount = 10;
 
-// Create a buffer for holding the colors (3 bytes per color).
-//rgb_color colors[ledCount];
-
-// Set the brightness to use (the maximum is 31).
-//const uint8_t brightness = 1;
-
 void writePosition( int8_t pos );
 
 void setup()
