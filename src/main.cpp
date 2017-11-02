@@ -6,6 +6,8 @@
 #include <APA102.h>
 #include <ADCTouch.h>
 
+#define TOUCH_DEADZONE 2
+
 // Define which pins to use.
 const uint8_t dataPin  = 11;
 const uint8_t clockPin = 12;
@@ -15,15 +17,15 @@ APA102<dataPin, clockPin> ledStrip;
 
 // Set the number of LEDs to control.
 const uint8_t ledCount = 10;
-int ref = 0;
+uint16_t      refA0    = 0;
 
 void writePosition( int8_t pos );
 
 void setup()
 {
     randomSeed( analogRead( 0 ) );
-    pinMode(13, OUTPUT);
-    ref = ADCTouch.read(A0);
+    pinMode( 13, OUTPUT );
+    refA0 = ADCTouch.read( A0 );
 }
 
 void loop()
@@ -34,7 +36,9 @@ void loop()
 
     if ( position == positionTarget )
     {
-        positionTarget = uint8_t( random( 1, 10 ) );
+        bool touched = ADCTouch.read( A0 ) - refA0 > TOUCH_DEADZONE;
+        digitalWrite( 13, touched );
+        positionTarget = uint8_t( random( 1, touched ? 2 : ledCount ) );
         //speed          = uint8_t( random( 1, 50 ) );
         speed          = analogRead( 0 ) / ( 1023 / 50 );
     }
@@ -47,8 +51,6 @@ void loop()
     {
         position--;
     }
-
-    digitalWrite(13, ADCTouch.read(A0) - ref > 1);
 
     writePosition( position );
 
