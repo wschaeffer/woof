@@ -6,8 +6,7 @@
 #include <APA102.h>
 #include <ADCTouch.h>
 
-#define PROXIMITY_DEADZONE 2
-#define PROXIMITY_TOUCHED 40
+#define TOUCH_DEADZONE 2
 
 // Define which pins to use.
 const uint8_t dataPin  = 11;
@@ -21,7 +20,6 @@ const uint8_t ledCount = 10;
 uint16_t      refA0    = 0;
 
 void writePosition( uint8_t pos );
-void writePosition( uint8_t pos, uint8_t dimBegin, uint8_t dimEnd );
 
 void setup()
 {
@@ -34,24 +32,13 @@ void loop()
 {
     static uint8_t  position       = 0;
     static uint8_t  positionTarget = 0;
-    uint8_t         maxLed         = 0;
     static uint16_t speed          = 0;
-    static uint8_t  proximity      = 0;
-    static bool     touched        = false;
 
     if ( position == positionTarget )
     {
-        proximity = ADCTouch.read( A0 ) - refA0;
-        if ( proximity < PROXIMITY_DEADZONE )
-        {
-            proximity = 0;
-        }
-        touched   = proximity > PROXIMITY_TOUCHED;
+        bool touched = ADCTouch.read( A0 ) - refA0 > TOUCH_DEADZONE;
         digitalWrite( 13, ( uint8_t ) touched );
-
-        maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / ledCount );
-        //positionTarget = uint8_t( random( 1, touched ? 3 : ledCount ) );
-        positionTarget = uint8_t( random( 1, maxLed ) );
+        positionTarget = uint8_t( random( 1, touched ? 2 : ledCount ) );
         speed          = ( uint16_t ) analogRead( 0 ) / ( 1023 / 50 );
     }
 
@@ -64,14 +51,7 @@ void loop()
         position--;
     }
 
-    if ( proximity )
-    {
-        writePosition( position, 0, maxLed );
-    }
-    else
-    {
-        writePosition( position );
-    }
+    writePosition( position );
 
     delay( speed );
 }
@@ -82,24 +62,6 @@ void writePosition( uint8_t pos )
     for ( uint8_t i = 0; i < ledCount; i++ )
     {
         ledStrip.sendColor( 255, 25, 0, uint8_t( i == pos ) );
-    }
-    ledStrip.endFrame( ledCount );
-}
-
-void writePosition( uint8_t pos, uint8_t dimBegin, uint8_t dimEnd )
-{
-    ledStrip.startFrame();
-    for ( uint8_t i = 0; i < ledCount; i++ )
-    {
-        if ( dimBegin <= i && i < dimEnd )
-        {
-            ledStrip.sendColor( 255, 25, 0, uint8_t( i == pos ) + 1 );
-        }
-        else
-        {
-            ledStrip.sendColor( 255, 25, 0, 0 );
-        }
-
     }
     ledStrip.endFrame( ledCount );
 }
