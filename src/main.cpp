@@ -19,13 +19,13 @@ APA102<dataPin, clockPin> ledStrip;
 const uint8_t ledCount = 10;
 uint16_t      refA0    = 0;
 
-void writePosition( int8_t pos );
+void writePosition( uint8_t pos );
 
 void setup()
 {
-    randomSeed( analogRead( 0 ) );
+    randomSeed( ( unsigned long ) analogRead( 0 ) );
     pinMode( 13, OUTPUT );
-    refA0 = ADCTouch.read( A0 );
+    refA0 = ( uint16_t ) ADCTouch.read( A0 );
 }
 
 void loop()
@@ -37,10 +37,9 @@ void loop()
     if ( position == positionTarget )
     {
         bool touched = ADCTouch.read( A0 ) - refA0 > TOUCH_DEADZONE;
-        digitalWrite( 13, touched );
+        digitalWrite( 13, ( uint8_t ) touched );
         positionTarget = uint8_t( random( 1, touched ? 2 : ledCount ) );
-        //speed          = uint8_t( random( 1, 50 ) );
-        speed          = analogRead( 0 ) / ( 1023 / 50 );
+        speed          = ( uint16_t ) analogRead( 0 ) / ( 1023 / 50 );
     }
 
     if ( position < positionTarget )
@@ -57,7 +56,7 @@ void loop()
     delay( speed );
 }
 
-void writePosition( int8_t pos )
+void writePosition( uint8_t pos )
 {
     ledStrip.startFrame();
     for ( uint8_t i = 0; i < ledCount; i++ )
