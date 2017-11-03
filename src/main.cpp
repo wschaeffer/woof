@@ -32,12 +32,12 @@ void setup()
 
 void loop()
 {
+    static bool     touched        = false;
     static uint8_t  position       = 0;
     static uint8_t  positionTarget = 0;
-    uint8_t         maxLed         = 0;
-    static uint16_t speed          = 0;
+    static uint8_t  maxLed         = 0;
     static uint8_t  proximity      = 0;
-    static bool     touched        = false;
+    static uint16_t speed          = 0;
 
     if ( position == positionTarget )
     {
