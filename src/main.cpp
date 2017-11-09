@@ -65,49 +65,47 @@ void loop()
 
         rise ? brightness++ : brightness--;
         writePosition( positionTarget, brightness );
-        speed = 200;
+        speed = 175;
     }
     else
     {
-        writePosition( -1 );
-    }
-
-    /*if ( position == positionTarget )
-    {
-        proximity = ADCTouch.read( A0 ) - refA0;
-        if ( proximity < PROXIMITY_DEADZONE )
+        if ( position == positionTarget )
         {
-            proximity = 0;
+            proximity = ADCTouch.read( A0 ) - refA0;
+            if ( proximity < PROXIMITY_DEADZONE )
+            {
+                proximity = 0;
+            }
+            else if ( proximity > PROXIMITY_TOUCHED )
+            {
+                proximity = PROXIMITY_TOUCHED;
+            }
+            touched   = proximity > PROXIMITY_TOUCHED;
+            digitalWrite( 13, ( uint8_t ) touched );
+
+            maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / ledCount );
+            positionTarget = uint8_t( random( 1, maxLed ) );
+            speed          = 2500; //( uint16_t ) analogRead( 0 );// / ( 1023 / 50 );
         }
-        else if ( proximity > PROXIMITY_TOUCHED )
+
+        if ( position < positionTarget )
         {
-            proximity = PROXIMITY_TOUCHED;
+            position++;
         }
-        touched   = proximity > PROXIMITY_TOUCHED;
-        digitalWrite( 13, ( uint8_t ) touched );
+        else
+        {
+            position--;
+        }
 
-        maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / ledCount );
-        positionTarget = uint8_t( random( 1, maxLed ) );
-        speed          = 2500; //( uint16_t ) analogRead( 0 );// / ( 1023 / 50 );
+        if ( proximity )
+        {
+            writePosition( position, 0, maxLed );
+        }
+        else
+        {
+            writePosition( position );
+        }
     }
-
-    if ( position < positionTarget )
-    {
-        position++;
-    }
-    else
-    {
-        position--;
-    }
-
-    if ( proximity )
-    {
-        writePosition( position, 0, maxLed );
-    }
-    else
-    {
-        writePosition( position );
-    }*/
 
     delay( speed );
 }
