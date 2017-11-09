@@ -6,8 +6,8 @@
 #include <APA102.h>
 #include <ADCTouch.h>
 
-#define PROXIMITY_DEADZONE 2
-#define PROXIMITY_TOUCHED 40
+#define PROXIMITY_DEADZONE 3
+#define PROXIMITY_TOUCHED 30
 
 // Define which pins to use.
 const uint8_t dataPin  = 11;
