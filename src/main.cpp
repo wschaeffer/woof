@@ -46,6 +46,10 @@ void loop()
         {
             proximity = 0;
         }
+        else if ( proximity > PROXIMITY_TOUCHED )
+        {
+            proximity = PROXIMITY_TOUCHED;
+        }
         touched   = proximity > PROXIMITY_TOUCHED;
         digitalWrite( 13, ( uint8_t ) touched );
 
