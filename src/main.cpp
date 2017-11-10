@@ -3,36 +3,55 @@
 //
 
 #include <Arduino.h>
-#include <APA102.h>
+#include "LEDstrip.h"
+#include <ADCTouch.h>
 
-// Define which pins to use.
-const uint8_t dataPin  = 11;
-const uint8_t clockPin = 12;
+#define PIN_DATA 11
+#define PIN_CLOCK 12
+#define LEDCOUNT 10
 
-// Create an object for writing to the LED strip.
-APA102<dataPin, clockPin> ledStrip;
+#define PROXIMITY_DEADZONE 3
+#define PROXIMITY_TOUCHED 30
 
-// Set the number of LEDs to control.
-const uint8_t ledCount = 10;
+LEDstrip led          = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
 
-void writePosition( int8_t pos );
+uint16_t  refA0;
+rgb_color colorOrange = {255, 25, 0, 1};
 
 void setup()
 {
-    randomSeed( analogRead( 0 ) );
+    pinMode( 13, OUTPUT );
+    randomSeed( ( unsigned long ) analogRead( 0 ) );
+    refA0 = ( uint16_t ) ADCTouch.read( A0 );
 }
 
 void loop()
 {
+    static bool     touched        = false;
     static uint8_t  position       = 0;
     static uint8_t  positionTarget = 0;
+    static uint8_t  maxLed         = 0;
+    static uint8_t  proximity      = 0;
     static uint16_t speed          = 0;
 
     if ( position == positionTarget )
     {
-        positionTarget = uint8_t( random( 1, 10 ) );
-        //speed          = uint8_t( random( 1, 50 ) );
-        speed          = analogRead( 0 ) / ( 1023 / 50 );
+        proximity = ADCTouch.read( A0 ) - refA0;
+        if ( proximity < PROXIMITY_DEADZONE )
+        {
+            proximity = 0;
+        }
+        else if ( proximity > PROXIMITY_TOUCHED )
+        {
+            proximity = PROXIMITY_TOUCHED;
+        }
+
+        touched = proximity > PROXIMITY_TOUCHED;
+        digitalWrite( 13, ( uint8_t ) touched );
+
+        maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / LEDCOUNT );
+        positionTarget = uint8_t( random( 1, maxLed ) );
+        speed          = ( uint16_t ) analogRead( 0 ) / ( 1023 / 50 );
     }
 
     if ( position < positionTarget )
@@ -44,17 +63,24 @@ void loop()
         position--;
     }
 
-    writePosition( position );
-
-    delay( speed );
-}
-
-void writePosition( int8_t pos )
-{
-    ledStrip.startFrame();
-    for ( uint8_t i = 0; i < ledCount; i++ )
+    if ( proximity )
     {
-        ledStrip.sendColor( 255, 25, 0, uint8_t( i == pos ) );
+        rgb_color brighter = colorOrange;
+        brighter.brightness++;
+        for ( uint8_t i = 0; i < maxLed; i++ )
+        {
+            led.SetColor( colorOrange, i );
+            if ( i == position )
+            {
+                led.SetColor( brighter, i );
+            }
+        }
     }
-    ledStrip.endFrame( ledCount );
+    else
+    {
+        led.SetColor( colorOrange, position );
+    }
+
+    led.Write();
+    delay( speed );
 }
