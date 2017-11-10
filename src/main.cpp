@@ -42,7 +42,9 @@ void loop()
     static uint16_t speed          = 0;
     static uint8_t  brightness     = 0;
 
-    if ( ADCTouch.read( A0 ) - refA0 > PROXIMITY_DEADZONE )
+    proximity = ADCTouch.read( A0 ) - refA0;
+
+    if ( proximity > PROXIMITY_DEADZONE )
     {
         calm = false;
     }
@@ -71,7 +73,6 @@ void loop()
     {
         if ( position == positionTarget )
         {
-            proximity = ADCTouch.read( A0 ) - refA0;
             if ( proximity < PROXIMITY_DEADZONE )
             {
                 proximity = 0;
@@ -80,12 +81,13 @@ void loop()
             {
                 proximity = PROXIMITY_TOUCHED;
             }
+
             touched   = proximity > PROXIMITY_TOUCHED;
             digitalWrite( 13, ( uint8_t ) touched );
 
             maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / ledCount );
             positionTarget = uint8_t( random( 1, maxLed ) );
-            speed          = 2500; //( uint16_t ) analogRead( 0 );// / ( 1023 / 50 );
+            speed          = ( uint16_t ) analogRead( 0 ) / ( 1023 / 50 );
         }
 
         if ( position < positionTarget )
