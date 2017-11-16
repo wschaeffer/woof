@@ -47,7 +47,7 @@ void loop()
             else
             {
                 leds[i].brightness++;
-                if ( leds[i].brightness > maxBrightness[i] )
+                if ( leds[i].brightness == maxBrightness[i] )
                 {
                     ledsFalling[i] = true;
                 }
