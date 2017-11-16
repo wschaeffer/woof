@@ -65,11 +65,7 @@ void loop()
         }
     }
 
-    for ( uint8_t i = 0; i < LEDCOUNT; i++ )
-    {
-        led.SetColor( leds[i], i );
-    }
-
+    led.SetColor( leds, LEDCOUNT );
     led.Write();
     delay( speed );
 }
