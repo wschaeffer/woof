@@ -16,6 +16,12 @@ void LEDstrip::SetColor( rgb_color color, uint8_t position )
     colors[position] = color;
 }
 
+void LEDstrip::SetColor( rgb_color color, uint8_t brightness, uint8_t position )
+{
+    color.brightness = brightness;
+    colors[position] = color;
+}
+
 void LEDstrip::Write()
 {
     startFrame();
@@ -50,10 +56,10 @@ void LEDstrip::startFrame()
 void LEDstrip::endFrame()
 {
     transfer( 0xFF );
-    for ( uint16_t i = 0; i < 5 + ledCount / 16; i++ )
-    {
-        transfer( 0 );
-    }
+//    for ( uint8_t i = 0; i < 5 + ledCount / 16; i++ )
+//    {
+//        transfer( 0 );
+//    }
 }
 
 void LEDstrip::init()
@@ -67,27 +73,25 @@ void LEDstrip::init()
 void LEDstrip::transfer( uint8_t b )
 {
     digitalWrite( dataPin, b >> 7 & 1 );
-    digitalWrite( clockPin, HIGH );
-    digitalWrite( clockPin, LOW );
+    toggleClock();
     digitalWrite( dataPin, b >> 6 & 1 );
-    digitalWrite( clockPin, HIGH );
-    digitalWrite( clockPin, LOW );
+    toggleClock();
     digitalWrite( dataPin, b >> 5 & 1 );
-    digitalWrite( clockPin, HIGH );
-    digitalWrite( clockPin, LOW );
+    toggleClock();
     digitalWrite( dataPin, b >> 4 & 1 );
-    digitalWrite( clockPin, HIGH );
-    digitalWrite( clockPin, LOW );
+    toggleClock();
     digitalWrite( dataPin, b >> 3 & 1 );
-    digitalWrite( clockPin, HIGH );
-    digitalWrite( clockPin, LOW );
+    toggleClock();
     digitalWrite( dataPin, b >> 2 & 1 );
-    digitalWrite( clockPin, HIGH );
-    digitalWrite( clockPin, LOW );
+    toggleClock();
     digitalWrite( dataPin, b >> 1 & 1 );
-    digitalWrite( clockPin, HIGH );
-    digitalWrite( clockPin, LOW );
+    toggleClock();
     digitalWrite( dataPin, b >> 0 & 1 );
+    toggleClock();
+}
+
+void LEDstrip::toggleClock()
+{
     digitalWrite( clockPin, HIGH );
     digitalWrite( clockPin, LOW );
 }

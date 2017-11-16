@@ -65,14 +65,12 @@ void loop()
 
     if ( proximity )
     {
-        rgb_color brighter = colorOrange;
-        brighter.brightness++;
         for ( uint8_t i = 0; i < maxLed; i++ )
         {
             led.SetColor( colorOrange, i );
             if ( i == position )
             {
-                led.SetColor( brighter, i );
+                led.SetColor( colorOrange, 2, i );
             }
         }
     }

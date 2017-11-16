@@ -20,6 +20,7 @@ class LEDstrip
 public:
     LEDstrip( uint8_t dataPin, uint8_t clockPin, uint8_t ledCount );
     void SetColor( rgb_color color, uint8_t position );
+    void SetColor( rgb_color color, uint8_t brightness, uint8_t position );
     void Write();
 private:
     uint8_t dataPin;
@@ -32,6 +33,7 @@ private:
     void clearColors();
     void init();
     void transfer( uint8_t b );
+    void toggleClock();
 };
 
 #endif //ADDOG_LEDSTRIP_H
