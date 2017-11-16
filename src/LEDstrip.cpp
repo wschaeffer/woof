@@ -32,7 +32,6 @@ void LEDstrip::Write()
         transfer( colors[i].green );
         transfer( colors[i].red );
     }
-    endFrame();
     clearColors();
 }
 
@@ -51,15 +50,6 @@ void LEDstrip::startFrame()
     transfer( 0 );
     transfer( 0 );
     transfer( 0 );
-}
-
-void LEDstrip::endFrame()
-{
-    transfer( 0xFF );
-//    for ( uint8_t i = 0; i < 5 + ledCount / 16; i++ )
-//    {
-//        transfer( 0 );
-//    }
 }
 
 void LEDstrip::init()
