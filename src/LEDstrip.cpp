@@ -10,6 +10,8 @@ LEDstrip::LEDstrip( uint8_t dataPin, uint8_t clockPin, uint8_t ledCount )
 {
     colors = ( rgb_color* ) malloc( sizeof( rgb_color ) * ledCount );
     SPI.begin();
+    clearColors();
+    Write();
 }
 
 void LEDstrip::SetColor( rgb_color color, uint8_t position )
