@@ -32,6 +32,7 @@ void LEDstrip::Write()
         transfer( colors[i].green );
         transfer( colors[i].red );
     }
+    endFrame();
     clearColors();
 }
 
@@ -50,6 +51,15 @@ void LEDstrip::startFrame()
     transfer( 0 );
     transfer( 0 );
     transfer( 0 );
+}
+
+void LEDstrip::endFrame()
+{
+    digitalWrite( dataPin, 0 );
+    for ( uint8_t i = 0; i < ledCount / 2; i++ )
+    {
+        toggleClock();
+    }
 }
 
 void LEDstrip::init()
