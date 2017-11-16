@@ -25,7 +25,7 @@ LEDstrip  led            = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
 
 void setup()
 {
-    pinMode( 13, OUTPUT );
+    //pinMode( 13, OUTPUT );
     randomSeed( ( unsigned long ) analogRead( 0 ) );
     refA0 = ( uint16_t ) ADCTouch.read( A0 );
 }
@@ -45,7 +45,7 @@ void loop()
         }
 
         touched = proximity > PROXIMITY_TOUCHED;
-        digitalWrite( 13, ( uint8_t ) touched );
+//        digitalWrite( 13, ( uint8_t ) touched );
 
         maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / LEDCOUNT );
         positionTarget = uint8_t( random( 1, maxLed ) );
@@ -56,14 +56,12 @@ void loop()
 
     if ( proximity )
     {
-        rgb_color brighter = colorOrange;
-        brighter.brightness++;
         for ( uint8_t i = 0; i < maxLed; i++ )
         {
             led.SetColor( colorOrange, i );
             if ( i == position )
             {
-                led.SetColor( brighter, i );
+                led.SetColor( colorOrange, 2, i );
             }
         }
     }
