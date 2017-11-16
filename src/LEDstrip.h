@@ -31,9 +31,6 @@ private:
     void startFrame();
     void endFrame();
     void clearColors();
-    void init();
-    void transfer( uint8_t b );
-    void toggleClock();
 };
 
 #endif //ADDOG_LEDSTRIP_H

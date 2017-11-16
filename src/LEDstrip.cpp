@@ -3,12 +3,13 @@
 //
 
 #include "LEDstrip.h"
+#include <SPI.h>
 
 LEDstrip::LEDstrip( uint8_t dataPin, uint8_t clockPin, uint8_t ledCount )
 : dataPin( dataPin ), clockPin( clockPin ), ledCount( ledCount )
 {
     colors = ( rgb_color* ) malloc( sizeof( rgb_color ) * ledCount );
-    init();
+    SPI.begin();
 }
 
 void LEDstrip::SetColor( rgb_color color, uint8_t position )
@@ -27,10 +28,10 @@ void LEDstrip::Write()
     startFrame();
     for ( uint8_t i = 0; i < ledCount; i++ )
     {
-        transfer( 0b11100000 | colors[i].brightness );
-        transfer( colors[i].blue );
-        transfer( colors[i].green );
-        transfer( colors[i].red );
+        SPI.transfer( 0b11100000 | colors[i].brightness );
+        SPI.transfer( colors[i].blue );
+        SPI.transfer( colors[i].green );
+        SPI.transfer( colors[i].red );
     }
     endFrame();
     clearColors();
@@ -38,8 +39,9 @@ void LEDstrip::Write()
 
 void LEDstrip::clearColors()
 {
-    rgb_color     color = {};
-    for ( uint8_t i     = 0; i < ledCount; i++ )
+    rgb_color color = {};
+
+    for ( uint8_t i = 0; i < ledCount; i++ )
     {
         colors[i] = color;
     }
@@ -47,51 +49,17 @@ void LEDstrip::clearColors()
 
 void LEDstrip::startFrame()
 {
-    transfer( 0 );
-    transfer( 0 );
-    transfer( 0 );
-    transfer( 0 );
+    for ( uint8_t i = 0; i < 4; i++ )
+    {
+        SPI.transfer( 0 );
+    }
 }
 
 void LEDstrip::endFrame()
 {
-    digitalWrite( dataPin, 0 );
-    for ( uint8_t i = 0; i < ledCount / 2; i++ )
+    SPI.transfer( 0xFF );
+    for ( uint8_t i = 0; i < 5 + ledCount / 16; i++ )
     {
-        toggleClock();
+        SPI.transfer( 0 );
     }
-}
-
-void LEDstrip::init()
-{
-    digitalWrite( dataPin, LOW );
-    pinMode( dataPin, OUTPUT );
-    digitalWrite( clockPin, LOW );
-    pinMode( clockPin, OUTPUT );
-}
-
-void LEDstrip::transfer( uint8_t b )
-{
-    digitalWrite( dataPin, b >> 7 & 1 );
-    toggleClock();
-    digitalWrite( dataPin, b >> 6 & 1 );
-    toggleClock();
-    digitalWrite( dataPin, b >> 5 & 1 );
-    toggleClock();
-    digitalWrite( dataPin, b >> 4 & 1 );
-    toggleClock();
-    digitalWrite( dataPin, b >> 3 & 1 );
-    toggleClock();
-    digitalWrite( dataPin, b >> 2 & 1 );
-    toggleClock();
-    digitalWrite( dataPin, b >> 1 & 1 );
-    toggleClock();
-    digitalWrite( dataPin, b >> 0 & 1 );
-    toggleClock();
-}
-
-void LEDstrip::toggleClock()
-{
-    digitalWrite( clockPin, HIGH );
-    digitalWrite( clockPin, LOW );
 }

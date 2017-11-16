@@ -20,7 +20,7 @@ rgb_color colorOrange = {255, 25, 0, 1};
 
 void setup()
 {
-    pinMode( 13, OUTPUT );
+    //pinMode( 13, OUTPUT );
     randomSeed( ( unsigned long ) analogRead( 0 ) );
     refA0 = ( uint16_t ) ADCTouch.read( A0 );
 }
@@ -47,7 +47,7 @@ void loop()
         }
 
         touched = proximity > PROXIMITY_TOUCHED;
-        digitalWrite( 13, ( uint8_t ) touched );
+//        digitalWrite( 13, ( uint8_t ) touched );
 
         maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / LEDCOUNT );
         positionTarget = uint8_t( random( 1, maxLed ) );
