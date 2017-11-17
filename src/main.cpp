@@ -10,30 +10,42 @@
 #define PIN_CLOCK 12
 #define LEDCOUNT 10
 
-#define PROXIMITY_DEADZONE 3
-#define PROXIMITY_TOUCHED 30
+#define PROXIMITY_MEASUREMENTS 10
+#define PROXIMITY_DEADZONE 2
+#define PROXIMITY_TOUCHED 25
 
 bool      touched        = false;
 uint8_t   position       = 0;
 uint8_t   positionTarget = 0;
-uint8_t   maxLed         = 0;
-uint8_t   proximity      = 0;
+int8_t    maxLed         = 0;
+int8_t    proximity      = 0;
 uint16_t  speed          = 0;
-uint16_t  refA0          = 0;
 rgb_color colorOrange    = {255, 25, 0, 1};
 LEDstrip  led            = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
 
+int16_t refA0                                   = 0;
+int8_t  proximityValues[PROXIMITY_MEASUREMENTS] = {};
+uint8_t proximityCounter                        = 0;
+
+int8_t ReadProximity();
+void UpdateProximity();
+int8_t AverageProximity();
+
 void setup()
 {
+    Serial.begin( 9600 );
     randomSeed( ( unsigned long ) analogRead( 0 ) );
-    refA0 = ( uint16_t ) ADCTouch.read( A0 );
+    refA0 = ( int16_t ) ADCTouch.read( A0 );
 }
 
 void loop()
 {
+    UpdateProximity();
+
     if ( position == positionTarget )
     {
-        proximity = ADCTouch.read( A0 ) - refA0;
+        proximity = AverageProximity();
+        Serial.println( proximity );
         if ( proximity < PROXIMITY_DEADZONE )
         {
             proximity = 0;
@@ -70,4 +82,32 @@ void loop()
 
     led.Write();
     delay( speed );
+}
+
+int8_t ReadProximity()
+{
+    int proximity = ADCTouch.read( A0 ) - refA0;
+    return proximity;
+}
+
+void UpdateProximity()
+{
+    proximityValues[proximityCounter] = ReadProximity();
+
+    proximityCounter++;
+    if ( proximityCounter == PROXIMITY_MEASUREMENTS )
+    {
+        proximityCounter = 0;
+    }
+}
+
+int8_t AverageProximity()
+{
+    int16_t counter = 0;
+
+    for ( uint8_t i = 0; i < PROXIMITY_MEASUREMENTS; i++ )
+    {
+        counter += proximityValues[i];
+    }
+    return counter / PROXIMITY_MEASUREMENTS;
 }
