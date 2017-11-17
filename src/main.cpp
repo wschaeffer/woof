@@ -4,38 +4,26 @@
 
 #include <Arduino.h>
 #include "LEDstrip.h"
-#include <ADCTouch.h>
+#include "proximity.h"
 
 #define PIN_DATA 11
 #define PIN_CLOCK 12
 #define LEDCOUNT 10
 
-#define PROXIMITY_MEASUREMENTS 5
-#define PROXIMITY_DEADZONE 2
-#define PROXIMITY_TOUCHED 35
-
 bool      touched        = false;
 uint8_t   position       = 0;
 uint8_t   positionTarget = 0;
 int8_t    maxLed         = 0;
-int8_t    proximity      = 0;
 uint16_t  speed          = 0;
 rgb_color colorOrange    = {255, 25, 0, 1};
 LEDstrip  led            = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
 
-int16_t refA0                                   = 0;
-int8_t  proximityValues[PROXIMITY_MEASUREMENTS] = {};
-uint8_t proximityCounter                        = 0;
-
-int8_t ReadProximity();
-void UpdateProximity();
-int8_t AverageProximity();
+int8_t proximity = 0;
 
 void setup()
 {
-    Serial.begin( 9600 );
     randomSeed( ( unsigned long ) analogRead( 0 ) );
-    refA0 = ( int16_t ) ADCTouch.read( A0 );
+    SetupProximity();
 }
 
 void loop()
@@ -50,11 +38,11 @@ void loop()
         {
             proximity = 0;
         }
-        if ( proximity > PROXIMITY_TOUCHED )
+        else if ( proximity > PROXIMITY_TOUCHED )
         {
             proximity = PROXIMITY_TOUCHED;
         }
-        Serial.println( proximity );
+
         touched = proximity > PROXIMITY_TOUCHED;
 
         maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / LEDCOUNT );
@@ -64,7 +52,7 @@ void loop()
 
     position < positionTarget ? ( position++ ) : ( position-- );
 
-    if ( proximity > 0)
+    if ( proximity > 0 )
     {
         for ( uint8_t i = 0; i < maxLed; i++ )
         {
@@ -82,33 +70,4 @@ void loop()
 
     led.Write();
     delay( speed );
-}
-
-int8_t ReadProximity()
-{
-    int proximity = ADCTouch.read( A0 ) - refA0;
-    return proximity;
-}
-
-void UpdateProximity()
-{
-    proximityValues[proximityCounter] = ReadProximity();
-
-    proximityCounter++;
-    if ( proximityCounter == PROXIMITY_MEASUREMENTS )
-    {
-        proximityCounter = 0;
-    }
-}
-
-int8_t AverageProximity()
-{
-    int16_t counter = 0;
-
-    for ( uint8_t i = 0; i < PROXIMITY_MEASUREMENTS; i++ )
-    {
-        counter += proximityValues[i];
-    }
-
-    return counter / PROXIMITY_MEASUREMENTS;
 }
