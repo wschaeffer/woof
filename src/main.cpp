@@ -10,9 +10,9 @@
 #define PIN_CLOCK 12
 #define LEDCOUNT 10
 
-#define PROXIMITY_MEASUREMENTS 10
+#define PROXIMITY_MEASUREMENTS 5
 #define PROXIMITY_DEADZONE 2
-#define PROXIMITY_TOUCHED 25
+#define PROXIMITY_TOUCHED 35
 
 bool      touched        = false;
 uint8_t   position       = 0;
@@ -45,16 +45,16 @@ void loop()
     if ( position == positionTarget )
     {
         proximity = AverageProximity();
-        Serial.println( proximity );
+
         if ( proximity < PROXIMITY_DEADZONE )
         {
             proximity = 0;
         }
-        else if ( proximity > PROXIMITY_TOUCHED )
+        if ( proximity > PROXIMITY_TOUCHED )
         {
             proximity = PROXIMITY_TOUCHED;
         }
-
+        Serial.println( proximity );
         touched = proximity > PROXIMITY_TOUCHED;
 
         maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / LEDCOUNT );
@@ -64,7 +64,7 @@ void loop()
 
     position < positionTarget ? ( position++ ) : ( position-- );
 
-    if ( proximity )
+    if ( proximity > 0)
     {
         for ( uint8_t i = 0; i < maxLed; i++ )
         {
@@ -109,5 +109,6 @@ int8_t AverageProximity()
     {
         counter += proximityValues[i];
     }
+
     return counter / PROXIMITY_MEASUREMENTS;
 }
