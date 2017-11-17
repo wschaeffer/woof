@@ -10,7 +10,7 @@
 #define LEDCOUNT 10
 #define MAX_BRIGHTNESS 20
 
-uint8_t maxLed = 4;
+uint8_t maxLed = 7;
 uint8_t ledsOn = 0;
 
 uint16_t  speed = 100;
@@ -56,7 +56,7 @@ void loop()
         }
         else if ( ledTarget == i )
         {
-            if ( ledsOn < maxLed )
+            if ( ledsOn <= maxLed )
             {
                 ledsOn++;
                 leds[i]          = colorOrange;
