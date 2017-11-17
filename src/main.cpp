@@ -4,37 +4,36 @@
 
 #include <Arduino.h>
 #include "LEDstrip.h"
-#include <ADCTouch.h>
+#include "proximity.h"
 
 #define PIN_DATA 11
 #define PIN_CLOCK 12
 #define LEDCOUNT 10
 
-#define PROXIMITY_DEADZONE 3
-#define PROXIMITY_TOUCHED 30
-
 bool      touched        = false;
 uint8_t   position       = 0;
 uint8_t   positionTarget = 0;
-uint8_t   maxLed         = 0;
-uint8_t   proximity      = 0;
+int8_t    maxLed         = 0;
 uint16_t  speed          = 0;
-uint16_t  refA0          = 0;
 rgb_color colorOrange    = {255, 25, 0, 1};
 LEDstrip  led            = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
 
+int8_t proximity = 0;
+
 void setup()
 {
-    //pinMode( 13, OUTPUT );
     randomSeed( ( unsigned long ) analogRead( 0 ) );
-    refA0 = ( uint16_t ) ADCTouch.read( A0 );
+    SetupProximity();
 }
 
 void loop()
 {
+    UpdateProximity();
+
     if ( position == positionTarget )
     {
-        proximity = ADCTouch.read( A0 ) - refA0;
+        proximity = AverageProximity();
+
         if ( proximity < PROXIMITY_DEADZONE )
         {
             proximity = 0;
@@ -45,7 +44,6 @@ void loop()
         }
 
         touched = proximity > PROXIMITY_TOUCHED;
-//        digitalWrite( 13, ( uint8_t ) touched );
 
         maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / LEDCOUNT );
         positionTarget = uint8_t( random( 1, maxLed ) );
@@ -54,7 +52,7 @@ void loop()
 
     position < positionTarget ? ( position++ ) : ( position-- );
 
-    if ( proximity )
+    if ( proximity > 0 )
     {
         for ( uint8_t i = 0; i < maxLed; i++ )
         {
