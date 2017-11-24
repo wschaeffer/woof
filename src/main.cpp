@@ -11,19 +11,21 @@
 #define LEDCOUNT 10
 #define MAX_BRIGHTNESS 20
 
-bool      touched        = false;
+bool touched             = false;
 int8_t    maxLed         = 4;
-int8_t proximity = 0;
+int8_t    proximity      = 0;
 uint8_t   position       = 0;
 uint8_t   positionTarget = 0;
 uint16_t  speed          = 150;
 
-uint8_t ledsOn = 0;
-bool ledsFalling[LEDCOUNT]        = {};
+bool      ledsFalling[LEDCOUNT]   = {};
+uint8_t   ledsOn                  = 0;
 uint8_t   maxBrightness[LEDCOUNT] = {};
 rgb_color leds[LEDCOUNT]          = {};
 rgb_color colorOrange             = {255, 25, 0, 1};
 LEDstrip  led                     = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
+
+void handleBreathing();
 
 void setup()
 {
@@ -34,6 +36,19 @@ void setup()
 void loop()
 {
     UpdateProximity();
+
+    if(pro){
+
+    }
+    handleBreathing();
+
+    led.SetColor( leds, LEDCOUNT );
+    led.Write();
+    delay( speed );
+}
+
+void handleBreathing()
+{
     uint8_t ledTarget = uint8_t( random( 0, LEDCOUNT ) );
 
     for ( uint8_t i = 0; i < LEDCOUNT; i++ )
@@ -70,8 +85,4 @@ void loop()
             }
         }
     }
-
-    led.SetColor( leds, LEDCOUNT );
-    led.Write();
-    delay( speed );
 }
