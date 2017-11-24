@@ -25,6 +25,13 @@ void LEDstrip::SetColor( rgb_color color, uint8_t brightness, uint8_t position )
     colors[position] = color;
 }
 
+void LEDstrip::SetColor( rgb_color* colorArray, uint8_t count )
+{
+    for(uint8_t i = 0; i < count; i++){
+        colors[i] = colorArray[i];
+    }
+}
+
 void LEDstrip::Write()
 {
     startFrame();
