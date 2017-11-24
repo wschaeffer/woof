@@ -4,17 +4,21 @@
 
 #include <Arduino.h>
 #include "LEDstrip.h"
+#include "proximity.h"
 
 #define PIN_DATA 11
 #define PIN_CLOCK 12
 #define LEDCOUNT 10
 #define MAX_BRIGHTNESS 20
 
-uint8_t maxLed = 4;
+bool      touched        = false;
+int8_t    maxLed         = 4;
+int8_t proximity = 0;
+uint8_t   position       = 0;
+uint8_t   positionTarget = 0;
+uint16_t  speed          = 150;
+
 uint8_t ledsOn = 0;
-
-uint16_t  speed = 100;
-
 bool ledsFalling[LEDCOUNT]        = {};
 uint8_t   maxBrightness[LEDCOUNT] = {};
 rgb_color leds[LEDCOUNT]          = {};
@@ -24,10 +28,12 @@ LEDstrip  led                     = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
 void setup()
 {
     randomSeed( ( unsigned long ) analogRead( 0 ) );
+    SetupProximity();
 }
 
 void loop()
 {
+    UpdateProximity();
     uint8_t ledTarget = uint8_t( random( 0, LEDCOUNT ) );
 
     for ( uint8_t i = 0; i < LEDCOUNT; i++ )
