@@ -10,7 +10,7 @@ uint8_t proximityCounter                        = 0;
 
 void SetupProximity()
 {
-    refA0 = ( int16_t ) ADCTouch.read( A0 );
+    refA0 = ( int16_t ) ADCTouch.read( A0, 1000 );
 }
 
 void UpdateProximity()
