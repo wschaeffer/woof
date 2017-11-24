@@ -9,21 +9,16 @@
 #define PIN_DATA 11
 #define PIN_CLOCK 12
 #define LEDCOUNT 10
-#define MAX_BRIGHTNESS 20
 
 bool      touched        = false;
-int8_t    maxLed         = 4;
-int8_t proximity = 0;
 uint8_t   position       = 0;
 uint8_t   positionTarget = 0;
-uint16_t  speed          = 150;
+int8_t    maxLed         = 0;
+uint16_t  speed          = 0;
+rgb_color colorOrange    = {255, 25, 0, 1};
+LEDstrip  led            = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
 
-uint8_t ledsOn = 0;
-bool ledsFalling[LEDCOUNT]        = {};
-uint8_t   maxBrightness[LEDCOUNT] = {};
-rgb_color leds[LEDCOUNT]          = {};
-rgb_color colorOrange             = {255, 25, 0, 1};
-LEDstrip  led                     = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
+int8_t proximity = 0;
 
 void setup()
 {
@@ -34,44 +29,45 @@ void setup()
 void loop()
 {
     UpdateProximity();
-    uint8_t ledTarget = uint8_t( random( 0, LEDCOUNT ) );
 
-    for ( uint8_t i = 0; i < LEDCOUNT; i++ )
+    if ( position == positionTarget )
     {
-        if ( leds[i].brightness > 0 )
-        {
-            if ( ledsFalling[i] )
-            {
-                leds[i].brightness--;
-                if ( leds[i].brightness == 0 )
-                {
-                    ledsFalling[i] = false;
-                    leds[i]        = {};
-                    ledsOn--;
-                }
-            }
-            else
-            {
-                leds[i].brightness++;
-                if ( leds[i].brightness == maxBrightness[i] )
-                {
-                    ledsFalling[i] = true;
-                }
-            }
+        proximity = AverageProximity();
 
-        }
-        else if ( ledTarget == i )
+        if ( proximity < PROXIMITY_DEADZONE )
         {
-            if ( ledsOn < maxLed )
+            proximity = 0;
+        }
+        else if ( proximity > PROXIMITY_TOUCHED )
+        {
+            proximity = PROXIMITY_TOUCHED;
+        }
+
+        touched = proximity > PROXIMITY_TOUCHED;
+
+        maxLed         = ( PROXIMITY_TOUCHED - proximity ) / ( PROXIMITY_TOUCHED / LEDCOUNT );
+        positionTarget = uint8_t( random( 1, maxLed ) );
+        speed          = ( uint16_t ) analogRead( 0 ) / ( 1023 / 50 );
+    }
+
+    position < positionTarget ? ( position++ ) : ( position-- );
+
+    if ( proximity > 0 )
+    {
+        for ( uint8_t i = 0; i < maxLed; i++ )
+        {
+            led.SetColor( colorOrange, i );
+            if ( i == position )
             {
-                ledsOn++;
-                leds[i]          = colorOrange;
-                maxBrightness[i] = uint8_t( random( 10, MAX_BRIGHTNESS ) );
+                led.SetColor( colorOrange, 2, i );
             }
         }
     }
+    else
+    {
+        led.SetColor( colorOrange, position );
+    }
 
-    led.SetColor( leds, LEDCOUNT );
     led.Write();
     delay( speed );
 }
