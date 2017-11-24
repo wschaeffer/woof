@@ -8,9 +8,9 @@
 #include <Arduino.h>
 #include <ADCTouch.h>
 
-#define PROXIMITY_MEASUREMENTS 5
-#define PROXIMITY_DEADZONE 2
-#define PROXIMITY_TOUCHED 35
+#define PROXIMITY_MEASUREMENTS 2
+#define PROXIMITY_DEADZONE 3
+#define PROXIMITY_TOUCHED 23
 
 void SetupProximity();
 void UpdateProximity();
