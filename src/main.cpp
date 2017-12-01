@@ -37,7 +37,6 @@ void loop()
     // Get proximity
     UpdateProximity();
     proximity = GetProximity();
-    delayms   = ( uint8_t ) map( proximity, 0, PROXIMITY_TOUCHED, MAX_DELAY, MIN_DELAY );
 
     // Control out of range
     if ( proximity < PROXIMITY_DEADZONE )
@@ -57,6 +56,8 @@ void loop()
     {
         touched = false;
     }
+
+    delayms = ( uint8_t ) map( proximity, 0, PROXIMITY_TOUCHED, MAX_DELAY, MIN_DELAY );
 
     // Set sate
     if ( touched && millis() - touchStartTime < TIME_ACTIVE * 1000 )
