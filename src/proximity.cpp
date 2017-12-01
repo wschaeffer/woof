@@ -30,7 +30,7 @@ int8_t ReadProximity()
     return proximity;
 }
 
-int8_t AverageProximity()
+int8_t GetProximity()
 {
     int16_t counter = 0;
 

@@ -9,23 +9,22 @@
 #define PIN_DATA 11
 #define PIN_CLOCK 12
 #define LEDCOUNT 10
+#define MIN_BRIGHTNESS 10
 #define MAX_BRIGHTNESS 20
+#define MAX_DELAY 100
+#define MIN_DELAY 1
+#define TIME_ACTIVE 5
 
-bool touched             = false;
-int8_t    maxLed         = 4;
-int8_t    proximity      = 0;
-uint8_t   position       = 0;
-uint8_t   positionTarget = 0;
-uint16_t  speed          = 150;
+bool     touched        = false;
+int8_t   proximity      = 0;
+uint16_t delayms        = 100;
+long     touchStartTime = 0;
 
-bool      ledsFalling[LEDCOUNT]   = {};
-uint8_t   ledsOn                  = 0;
-uint8_t   maxBrightness[LEDCOUNT] = {};
-rgb_color leds[LEDCOUNT]          = {};
-rgb_color colorOrange             = {255, 25, 0, 1};
-LEDstrip  led                     = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
+rgb_color colorOrange = {255, 25, 0, 1};
+LEDstrip  led         = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
 
-void handleBreathing();
+void HandleSateBreathing();
+void HandleStateActive();
 
 void setup()
 {
@@ -35,21 +34,54 @@ void setup()
 
 void loop()
 {
+    // Get proximity
     UpdateProximity();
+    proximity = GetProximity();
+    delayms   = ( uint8_t ) map( proximity, 0, PROXIMITY_TOUCHED, MAX_DELAY, MIN_DELAY );
 
-    if(pro){
-
+    // Control out of range
+    if ( proximity < PROXIMITY_DEADZONE )
+    {
+        proximity = 0;
     }
-    handleBreathing();
+    else if ( proximity >= PROXIMITY_TOUCHED )
+    {
+        proximity = PROXIMITY_TOUCHED;
+        if ( !touched )
+        {
+            touched        = true;
+            touchStartTime = millis();
+        }
+    }
+    else
+    {
+        touched = false;
+    }
 
-    led.SetColor( leds, LEDCOUNT );
+    // Set sate
+    if ( touched && millis() - touchStartTime < TIME_ACTIVE * 1000 )
+    {
+        HandleStateActive();
+    }
+    else
+    {
+        HandleSateBreathing();
+    }
+
+    // Update ledstrip
     led.Write();
-    delay( speed );
+    delay( delayms );
 }
 
-void handleBreathing()
+void HandleSateBreathing()
 {
+    static bool      ledsFalling[LEDCOUNT]   = {};
+    static uint8_t   ledsOn                  = 0;
+    static uint8_t   maxBrightness[LEDCOUNT] = {};
+    static rgb_color leds[LEDCOUNT]          = {};
+
     uint8_t ledTarget = uint8_t( random( 0, LEDCOUNT ) );
+    uint8_t maxLed    = ( uint8_t ) map( proximity, 0, PROXIMITY_TOUCHED * 0.5, 1, LEDCOUNT );
 
     for ( uint8_t i = 0; i < LEDCOUNT; i++ )
     {
@@ -81,8 +113,29 @@ void handleBreathing()
             {
                 ledsOn++;
                 leds[i]          = colorOrange;
-                maxBrightness[i] = uint8_t( random( 10, MAX_BRIGHTNESS ) );
+                maxBrightness[i] = uint8_t( random( MIN_BRIGHTNESS, MAX_BRIGHTNESS ) );
             }
         }
     }
+    led.SetColor( leds, LEDCOUNT );
+}
+
+void HandleStateActive()
+{
+    static uint8_t delayLed       = 0;
+    static uint8_t position       = 0;
+    static uint8_t positionTarget = 0;
+
+    if ( position == positionTarget )
+    {
+        positionTarget = uint8_t( random( 1, LEDCOUNT ) );
+        delayLed       = ( uint8_t ) random( 0, 10 );
+        delay( delayLed * 2 );
+    }
+
+    position < positionTarget ? ( position++ ) : ( position-- );
+
+    led.SetColor( colorOrange, MAX_BRIGHTNESS, position );
+
+    delay( delayLed );
 }
