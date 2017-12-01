@@ -32,7 +32,7 @@ void loop()
 
     if ( position == positionTarget )
     {
-        proximity = AverageProximity();
+        proximity = GetProximity();
 
         if ( proximity < PROXIMITY_DEADZONE )
         {

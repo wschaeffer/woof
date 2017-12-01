@@ -15,6 +15,6 @@
 void SetupProximity();
 void UpdateProximity();
 int8_t ReadProximity();
-int8_t AverageProximity();
+int8_t GetProximity();
 
 #endif //ADDOG_PROXIMITY_H
