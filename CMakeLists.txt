@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(ADDog)
+project(woof)
 
 include(CMakeListsPrivate.txt)
 

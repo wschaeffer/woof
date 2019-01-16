@@ -6,8 +6,6 @@
 #include "LEDstrip.h"
 #include "proximity.h"
 
-#define PIN_DATA 11
-#define PIN_CLOCK 12
 #define LEDCOUNT 10
 
 bool      touched        = false;
@@ -16,7 +14,7 @@ uint8_t   positionTarget = 0;
 int8_t    maxLed         = 0;
 uint16_t  speed          = 0;
 rgb_color colorOrange    = {255, 25, 0, 1};
-LEDstrip  led            = LEDstrip( PIN_DATA, PIN_CLOCK, LEDCOUNT );
+LEDstrip  led            = LEDstrip( LEDCOUNT );
 
 int8_t proximity = 0;
 

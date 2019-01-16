@@ -5,8 +5,7 @@
 #include "LEDstrip.h"
 #include <SPI.h>
 
-LEDstrip::LEDstrip( uint8_t dataPin, uint8_t clockPin, uint8_t ledCount )
-: dataPin( dataPin ), clockPin( clockPin ), ledCount( ledCount )
+LEDstrip::LEDstrip( uint8_t ledCount ) : ledCount( ledCount )
 {
     colors = ( rgb_color* ) malloc( sizeof( rgb_color ) * ledCount );
     SPI.begin();
